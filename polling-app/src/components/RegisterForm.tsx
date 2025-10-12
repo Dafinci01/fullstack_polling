@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../lib/supabase/client';
 
 export function RegisterForm() {
   const [email, setEmail] = useState('');
@@ -9,13 +11,13 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     
-    // Basic validation
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
@@ -23,19 +25,14 @@ export function RegisterForm() {
     }
     
     try {
-      // TODO: Implement Supabase authentication
-      // Example:
-      // const { error } = await supabase.auth.signUp({
-      //   email,
-      //   password,
-      // });
-      // 
-      // if (error) throw error;
-      // 
-      // // Redirect to login page or verification page
-      // router.push('/auth/login');
-      
-      console.log('Registration form submitted', { email, password });
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (signUpError) throw signUpError;
+
+      router.push('/auth/login');
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration');
     } finally {

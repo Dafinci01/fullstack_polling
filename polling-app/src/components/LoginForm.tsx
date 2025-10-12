@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Link } from '@chakra-ui/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../lib/supabase/client';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,19 +18,14 @@ export function LoginForm() {
     setError(null);
     
     try {
-      // TODO: Implement Supabase authentication
-      // Example:
-      // const { error } = await supabase.auth.signInWithPassword({
-      //   email,
-      //   password,
-      // });
-      // 
-      // if (error) throw error;
-      // 
-      // // Redirect to dashboard or home page
-      // router.push('/');
-      
-      console.log('Login form submitted', { email, password });
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) throw signInError;
+
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'An error occurred during login');
     } finally {
